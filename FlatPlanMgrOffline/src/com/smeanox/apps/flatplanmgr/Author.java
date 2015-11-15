@@ -33,7 +33,7 @@ public class Author {
     }
 
     public String getFullName(){
-        return firstName + " " + lastName;
+        return (firstName + " " + lastName).trim();
     }
 
     public String getRole() {
@@ -50,5 +50,10 @@ public class Author {
 
     public void setMailAddress(String mailAddress) {
         MailAddress = mailAddress;
+    }
+
+    @Override
+    public String toString() {
+        return getFullName();
     }
 }

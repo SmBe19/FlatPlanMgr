@@ -29,8 +29,10 @@ public class MainView extends Application {
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainView.class.getResource("MainView.fxml"));
-            loader.setController(new MainViewController(this));
+            MainViewController controller = new MainViewController(this);
+            loader.setController(controller);
             rootLayout = loader.load();
+            controller.initListeners();
 
             Scene scene = new Scene(rootLayout);
             primaryStage.setScene(scene);

@@ -3,19 +3,19 @@ package com.smeanox.apps.flatplanmgr;
 /**
  * A single page in the flat plan
  */
-public class Page {
+public class Story {
     private int start;
     private int length;
     private String title;
     private Author author;
     private Category category;
     private String fileFormat;
-    private PageStatus status;
+    private StoryStatus status;
 
-    public Page() {
+    public Story() {
     }
 
-    public Page(int start, int length, String title, Author author, Category category, String fileFormat, PageStatus status) {
+    public Story(int start, int length, String title, Author author, Category category, String fileFormat, StoryStatus status) {
         this.start = start;
         this.length = length;
         this.title = title;
@@ -73,11 +73,11 @@ public class Page {
         this.fileFormat = fileFormat;
     }
 
-    public PageStatus getStatus() {
+    public StoryStatus getStatus() {
         return status;
     }
 
-    public void setStatus(PageStatus status) {
+    public void setStatus(StoryStatus status) {
         this.status = status;
     }
 }

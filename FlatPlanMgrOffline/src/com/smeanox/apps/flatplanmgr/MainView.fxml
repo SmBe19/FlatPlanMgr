@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
-
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
    <top>
@@ -13,7 +13,7 @@
             <items>
                   <MenuItem fx:id="OpenMenuItem" mnemonicParsing="false" onAction="#openAction" text="Open" />
                   <MenuItem fx:id="SaveMenuItem" disable="true" mnemonicParsing="false" onAction="#saveAction" text="Save" />
-                  <MenuItem fx:id="SaveAsMenuItem" mnemonicParsing="false" onAction="#saveAsAction" text="Save as ..." />
+                  <MenuItem fx:id="SaveAsMenuItem" disable="true" mnemonicParsing="false" onAction="#saveAsAction" text="Save as ..." />
               <MenuItem fx:id="CloseMenuItem" mnemonicParsing="false" onAction="#closeAction" text="Close" />
             </items>
           </Menu>
@@ -25,18 +25,94 @@
         <panes>
           <TitledPane animated="false" text="Authors">
                <content>
-                  <VBox prefHeight="200.0" prefWidth="200.0">
+                  <VBox prefWidth="200.0">
                      <children>
-                        <ListView prefHeight="200.0" prefWidth="200.0" />
+                        <ListView fx:id="AuthorList" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                        <HBox prefWidth="200.0">
+                           <children>
+                              <Button fx:id="AuthorAdd" mnemonicParsing="false" onAction="#addAuthor" text="Add">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="AuthorDel" mnemonicParsing="false" onAction="#deleteAuthor" text="Delete">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="AuthorUp" mnemonicParsing="false" onAction="#upAuthor" text="^">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="AuthorDown" mnemonicParsing="false" onAction="#downAuthor" text="v">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                        </HBox>
+                        <TextField fx:id="AuthorFirstName" promptText="First Name">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <TextField fx:id="AuthorLastName" promptText="Last Name">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <TextField fx:id="AuthorRole" promptText="Role">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <TextField fx:id="AuthorMail" promptText="E-Mail">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </TextField>
                      </children>
                   </VBox>
                </content>
           </TitledPane>
           <TitledPane animated="false" text="Categories">
                <content>
-                  <VBox prefHeight="200.0" prefWidth="200.0">
+                  <VBox prefWidth="200.0">
                      <children>
-                        <ListView prefHeight="200.0" prefWidth="200.0" />
+                        <ListView fx:id="CategoryList" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin></ListView>
+                        <HBox prefWidth="200.0">
+                           <children>
+                              <Button fx:id="CategoryAdd" mnemonicParsing="false" onAction="#addCategory" text="Add">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="CategoryDel" mnemonicParsing="false" onAction="#deleteCategory" text="Delete">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="CategoryUp" mnemonicParsing="false" onAction="#upCategory" text="^">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="CategoryDown" mnemonicParsing="false" onAction="#downCategory" text="v">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                        </HBox>
+                        <TextField fx:id="CategoryName" promptText="Name">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin>
+                        </TextField>
                      </children>
                   </VBox>
                </content>
@@ -45,6 +121,6 @@
       </Accordion>
    </right>
    <center>
-      <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <ScrollPane prefHeight="100.0" prefWidth="100.0" BorderPane.alignment="CENTER" />
    </center>
 </BorderPane>

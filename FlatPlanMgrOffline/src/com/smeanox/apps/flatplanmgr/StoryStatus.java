@@ -3,6 +3,6 @@ package com.smeanox.apps.flatplanmgr;
 /**
  * Status of a page
  */
-public enum PageStatus {
+public enum StoryStatus {
     Missing, Received, ReceivedNoAutoLayout, LayoutInProgress, LayoutFinished
 }

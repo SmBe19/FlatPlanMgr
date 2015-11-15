@@ -1,7 +1,12 @@
 package com.smeanox.apps.flatplanmgr;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
@@ -9,15 +14,15 @@ import java.util.ArrayList;
  * A flat plan
  */
 public class FlatPlan {
-    private ArrayList<Page> pages;
-    private ArrayList<Author> authors;
-    private ArrayList<Category> categories;
+    private ObservableList<Story> stories;
+    private ObservableList<Author> authors;
+    private ObservableList<Category> categories;
     private File file;
 
     public FlatPlan() {
-        pages = new ArrayList<>();
-        authors = new ArrayList<>();
-        categories = new ArrayList<>();
+        stories = FXCollections.observableArrayList();
+        authors = FXCollections.observableArrayList();
+        categories = FXCollections.observableArrayList();
     }
 
     /**
@@ -30,15 +35,15 @@ public class FlatPlan {
         createFromFile(file);
     }
 
-    public ArrayList<Page> getPages() {
-        return pages;
+    public ObservableList<Story> getStories() {
+        return stories;
     }
 
-    public ArrayList<Author> getAuthors() {
+    public ObservableList<Author> getAuthors() {
         return authors;
     }
 
-    public ArrayList<Category> getCategories() {
+    public ObservableList<Category> getCategories() {
         return categories;
     }
 
@@ -97,7 +102,9 @@ public class FlatPlan {
 
             if(authorFile.exists()) {
                 Files.lines(authorFile.toPath()).forEach(s -> {
-                    String[] parts = s.split(";");
+                    String[] partsA = s.split(";");
+                    String[] parts = new String[] {"", "", "", ""};
+                    System.arraycopy(partsA, 0, parts, 0, partsA.length);
                     if (getAuthorByName(parts[0] + " " + parts[1]) == null) {
                         authors.add(new Author(parts[0], parts[1], parts[2], parts[3]));
                     }
@@ -116,13 +123,26 @@ public class FlatPlan {
                     category = new Category(parts[4]);
                     categories.add(category);
                 }
-                pages.add(new Page(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), parts[2], author, category, parts[5], PageStatus.values()[Integer.parseInt(parts[6])-1]));
+                stories.add(new Story(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), parts[2], author, category, parts[5], StoryStatus.values()[Integer.parseInt(parts[6])-1]));
             });
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NumberFormatException e){
+        } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
         }
+    }
+
+    private String joinValues(String sep, Object ... vals){
+        if(vals.length == 0){
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(vals[0]);
+        for(int i = 1; i < vals.length; i++){
+            sb.append(sep);
+            sb.append(vals[i]);
+        }
+        return sb.toString();
     }
 
     /**
@@ -131,5 +151,24 @@ public class FlatPlan {
      */
     public void save(File file){
         this.file = file;
+
+        File authorFile = createAuthorsFile(file);
+
+        try {
+            PrintWriter writer = new PrintWriter(authorFile);
+            for(Author author : authors){
+                writer.println(joinValues(";", author.getFirstName(), author.getLastName(), author.getRole(), author.getMailAddress()));
+            }
+            writer.close();
+            writer = new PrintWriter(file);
+            for(Story story : stories){
+                writer.println(joinValues(";", story.getStart(), story.getLength(), story.getTitle(), story.getAuthor().getFullName(),
+                        story.getCategory().getName(), story.getFileFormat(), story.getStatus().ordinal() + 1));
+            }
+            writer.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 }
