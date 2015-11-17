@@ -13,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -93,10 +94,16 @@ public class MainViewController {
 
     public void initListeners(){
         CategoryList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue == null){
+                return;
+            }
             CategoryName.setText(newValue.getName());
         });
 
         AuthorList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue == null){
+                return;
+            }
             AuthorFirstName.setText(newValue.getFirstName());
             AuthorLastName.setText(newValue.getLastName());
             AuthorRole.setText(newValue.getRole());
@@ -131,6 +138,7 @@ public class MainViewController {
             CategoryList.setItems(mainView.getFlatPlan().getCategories());
         }
     }
+
     @FXML
     void saveAction(ActionEvent event) {
         if(mainView.getFlatPlan() == null){
@@ -159,12 +167,12 @@ public class MainViewController {
 
     @FXML
     void addAuthor(ActionEvent event) {
-        mainView.getFlatPlan().getAuthors().add(new Author("new", "author", "", ""));
+        AuthorList.getItems().add(new Author("new", "author", "", ""));
     }
 
     @FXML
     void addCategory(ActionEvent event) {
-        mainView.getFlatPlan().getCategories().add(new Category("New category"));
+        CategoryList.getItems().add(new Category("New category"));
     }
 
     @FXML
@@ -172,7 +180,7 @@ public class MainViewController {
         if(AuthorList.getSelectionModel().getSelectedItem() == null){
             return;
         }
-        mainView.getFlatPlan().getAuthors().remove(AuthorList.getSelectionModel().getSelectedItem());
+        AuthorList.getItems().remove(AuthorList.getSelectionModel().getSelectedItem());
     }
 
     @FXML
@@ -180,27 +188,43 @@ public class MainViewController {
         if(CategoryList.getSelectionModel().getSelectedItem() == null){
             return;
         }
-        mainView.getFlatPlan().getCategories().remove(CategoryList.getSelectionModel().getSelectedItem());
+        CategoryList.getItems().remove(CategoryList.getSelectionModel().getSelectedItem());
     }
 
     @FXML
     void downAuthor(ActionEvent event) {
-
+        downList(AuthorList);
     }
 
     @FXML
     void downCategory(ActionEvent event) {
-
+        downList(CategoryList);
     }
 
     @FXML
     void upAuthor(ActionEvent event) {
-
+        upList(AuthorList);
     }
 
     @FXML
     void upCategory(ActionEvent event) {
+        upList(CategoryList);
+    }
 
+    <T> void downList(ListView<T> list){
+        int selectedIndex = list.getSelectionModel().getSelectedIndex();
+        if(selectedIndex >= 0 && selectedIndex < list.getItems().size() - 1){
+            Collections.swap(list.getItems(), selectedIndex, selectedIndex+1);
+        }
+        list.getSelectionModel().select(selectedIndex + 1);
+    }
+
+    <T> void upList(ListView<T> list){
+        int selectedIndex = list.getSelectionModel().getSelectedIndex();
+        if(selectedIndex > 0 && selectedIndex < list.getItems().size()){
+            Collections.swap(list.getItems(), selectedIndex, selectedIndex-1);
+        }
+        list.getSelectionModel().select(selectedIndex - 1);
     }
 
     private class TextFieldUpdate<T> implements ChangeListener<String>{
