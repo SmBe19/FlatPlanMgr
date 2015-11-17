@@ -113,6 +113,9 @@ public class FlatPlan {
 
             Files.lines(file.toPath()).forEach(s -> {
                 String[] parts = s.split(";");
+                if(parts.length < 7){
+                    return;
+                }
                 Author author = getAuthorByName(parts[3]);
                 if(author == null){
                     author = new Author(parts[3].substring(0, Math.max(0, parts[3].lastIndexOf(' '))), parts[3].substring(parts[3].lastIndexOf(' ') + 1), "", "");

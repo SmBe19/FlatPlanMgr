@@ -2,6 +2,8 @@ package com.smeanox.apps.flatplanmgr;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -90,16 +92,22 @@ public class MainViewController {
     }
 
     public void initListeners(){
-        CategoryList.getSelectionModel().selectedItemProperty().addListener(observable -> {
-            CategoryName.setText(((Category) observable).getName());
+        CategoryList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            CategoryName.setText(newValue.getName());
         });
 
-        AuthorList.getSelectionModel().selectedItemProperty().addListener(observable -> {
-            AuthorFirstName.setText(((Author) observable).getFirstName());
-            AuthorLastName.setText(((Author) observable).getLastName());
-            AuthorRole.setText(((Author) observable).getRole());
-            AuthorMail.setText(((Author) observable).getMailAddress());
+        AuthorList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            AuthorFirstName.setText(newValue.getFirstName());
+            AuthorLastName.setText(newValue.getLastName());
+            AuthorRole.setText(newValue.getRole());
+            AuthorMail.setText(newValue.getMailAddress());
         });
+
+        CategoryName.textProperty().addListener(new TextFieldUpdate<>(CategoryList, Category::setName));
+        AuthorFirstName.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setFirstName));
+        AuthorLastName.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setLastName));
+        AuthorRole.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setRole));
+        AuthorMail.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setMailAddress));
     }
 
     @FXML
@@ -151,22 +159,28 @@ public class MainViewController {
 
     @FXML
     void addAuthor(ActionEvent event) {
-
+        mainView.getFlatPlan().getAuthors().add(new Author("new", "author", "", ""));
     }
 
     @FXML
     void addCategory(ActionEvent event) {
-
+        mainView.getFlatPlan().getCategories().add(new Category("New category"));
     }
 
     @FXML
     void deleteAuthor(ActionEvent event) {
-
+        if(AuthorList.getSelectionModel().getSelectedItem() == null){
+            return;
+        }
+        mainView.getFlatPlan().getAuthors().remove(AuthorList.getSelectionModel().getSelectedItem());
     }
 
     @FXML
     void deleteCategory(ActionEvent event) {
-
+        if(CategoryList.getSelectionModel().getSelectedItem() == null){
+            return;
+        }
+        mainView.getFlatPlan().getCategories().remove(CategoryList.getSelectionModel().getSelectedItem());
     }
 
     @FXML
@@ -187,6 +201,33 @@ public class MainViewController {
     @FXML
     void upCategory(ActionEvent event) {
 
+    }
+
+    private class TextFieldUpdate<T> implements ChangeListener<String>{
+
+        private ListView<T> listView;
+        private TextFieldUpdateSetValue<T> textFieldUpdateSetValue;
+
+        public TextFieldUpdate(ListView<T> listView, TextFieldUpdateSetValue<T> textFieldUpdateSetValue) {
+            this.listView = listView;
+            this.textFieldUpdateSetValue = textFieldUpdateSetValue;
+        }
+
+        @Override
+        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+            if(CategoryList.getSelectionModel().getSelectedItem() == null){
+                return;
+            }
+            textFieldUpdateSetValue.setValue(listView.getSelectionModel().getSelectedItem(), newValue);
+            int selectedIndex = listView.getSelectionModel().getSelectedIndex();
+
+            // dirty hack to update list view
+            listView.getItems().set(selectedIndex, listView.getItems().get(selectedIndex));
+        }
+    }
+
+    private interface TextFieldUpdateSetValue<T>{
+        void setValue(T object, String value);
     }
 
 }
