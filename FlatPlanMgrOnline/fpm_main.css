@@ -1,0 +1,13 @@
+body{
+    background: #EEE;
+}
+.fp_plan{
+    display: block;
+}
+.fp_page{
+    background: #FFF;
+    display: block;
+    width: 200px;
+    padding: 5px 20px 5px 20px;
+    margin: 5px;
+}
