@@ -1,5 +1,5 @@
 <?php session_start(); ?>
-<?php include("settings.php"); ?>
+<?php require("settings.php"); ?>
 
 <?php
 if(isset($_GET["action"])){

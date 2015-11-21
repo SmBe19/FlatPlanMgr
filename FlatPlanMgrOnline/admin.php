@@ -1,5 +1,5 @@
 <?php session_start(); ?>
-<?php include("settings.php"); ?>
+<?php require("settings.php"); ?>
 <?php
 if($_SESSION["fpm_logged_in"] === true){
   $files = scandir($FPM_SETTINGS["root_dir"]);
