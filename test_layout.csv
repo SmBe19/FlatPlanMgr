@@ -1,9 +1,8 @@
 1;1;Editorial;Hans Muster;Rubrig;rtf;1
 2;2;abc;Peter Hans;Rubrig;rtf;1
-4;3;def;Hans Muster;Rubrig;rtf;1
-7;1;ghi;Peter Hans;Rubrik;rtf;1
-8;4;jkl;Hans Muster;Rubrik;rtf;1
-12;2;mno;Mario Super;Rubrig;rtf;1
+4;3;def;Hans Muster;Rubrig;rtf;2
+7;1;ghi;Peter Hans;Rubrik;rtf;5
+8;4;jkl;Hans Muster;Rubrik;rtf;3
+12;2;mno;Mario Super;Rubrig;rtf;4
 14;1;pqr;Hans Muster;Rubrig;rtf;1
 15;1;stu;Hans Muster;Rubrig;rtf;1
-

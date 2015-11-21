@@ -10,7 +10,7 @@ Allows to create flat plans for publications. Consists of an offline editor and 
  - Add pages
  - Remove pages
  - Change page properties
- - Rearange pages
+ - Rearrange pages
  - Add authors
  - Remove authors
  - Edit authors
@@ -22,6 +22,7 @@ Allows to create flat plans for publications. Consists of an offline editor and 
  - if logged in:
 	- Display the list of authors
 	- Send E-Mail to author(s)
+  - Display all available plans
 
 ## File format FlatPlan
 FPMgr uses csv as it's file format. It contains one table with the following columns, one article per line:

@@ -1,13 +1,90 @@
 body{
-    background: #EEE;
+  background: #EEE;
+  font-family: sans-serif;
 }
 .fp_plan{
-    display: block;
+  float: left;
+  width: 100%;
 }
+
 .fp_page{
-    background: #FFF;
-    display: block;
-    width: 200px;
-    padding: 5px 20px 5px 20px;
-    margin: 5px;
+  background: #FFF;
+  width: 150px;
+  padding: 5px 20px 5px 20px;
+  margin: 5px;
+  float: left;
+  border: 1px solid #AAA;
+}
+
+.fp_page_right{
+  border-left-style: dashed;
+}
+
+.fp_page_left{
+  border-right-style: dashed;
+}
+
+.fp_page p{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.fp_page_author_highlight{
+  border-color: #F00;
+  border-width: 2px;
+  margin: 4px;
+}
+
+.fp_author_highlight{
+  color: #F00;
+}
+
+.fp_authors_list{
+  float: none;
+  widht: 100%;
+}
+
+.fp_page_number{
+  float:right;
+}
+
+table.fp_authors_table, table.fp_authors_table th, table.fp_authors_table td{
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 3px 4px 2px 4px;
+}
+
+a{
+  color: inherit;
+}
+
+a:hover{
+  color: #00F;
+}
+
+.fp_status{
+  display: none;
+}
+
+.fp_page_status_1{
+  background: #FCC;
+}
+.fp_page_status_2{
+  background: #FFC;
+}
+.fp_page_status_3{
+  background: #FFA;
+}
+.fp_page_status_4{
+  background: #CCF;
+}
+.fp_page_status_5{
+  background: #CFC;
+}
+
+.file_not_found{
+  color: #F00;
 }
