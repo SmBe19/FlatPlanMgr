@@ -44,10 +44,10 @@ if(isset($_GET["plan"])){
     }
   }
 
+  $authors = [];
   if(isset($authors_file)){
     $authors_raw = file_get_contents($authors_file);
     $lines = explode("\n", str_replace("\r\n", "\n", $authors_raw));
-    $authors = [];
     foreach($lines as $line){
       $author = [];
       $parts = explode(";", $line);
@@ -62,6 +62,23 @@ if(isset($_GET["plan"])){
       $author["role"] = $parts[2];
       $author["email"] = $parts[3];
 
+      $authors[$author["fullname"]] = $author;
+    }
+  }
+
+  foreach($plan as $page){
+    if(!isset($authors[$page["author"]])){
+      $author = [];
+      if(strpos($page["author"], " ") === false){
+        $author["lastname"] = $page["author"];
+        $author["firstname"] = "";
+      } else {
+        $author["lastname"] = substr($page["author"], strpos($page["author"], " ") + 1);
+        $author["firstname"] = substr($page["author"], 0, strlen($page["author"]) - strlen($author["lastname"]) - 1);
+      }
+      $author["fullname"] = $page["author"];
+      $author["role"] = "";
+      $author["email"] = "";
       $authors[$author["fullname"]] = $author;
     }
   }
@@ -106,51 +123,46 @@ if(isset($_GET["plan"])){
         }
         ?>
       </div>
-
-      <?php
-      if(isset($authors_file)){
-        ?>
-        <div class="fp_authors_list">
-          <h2>Authors</h2>
-          <table class="fp_authors_table">
-            <tr class="fp_authors_table_header">
-              <th>H</th>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Role</th>
-              <?php
-              if($_SESSION["fpm_logged_in"] === true){
-                ?>
-                <th>E-Mail</th>
-                <?php
-              }
+      <div class="fp_authors_list">
+        <h2>Authors</h2>
+        <table class="fp_authors_table">
+          <tr class="fp_authors_table_header">
+            <th>H</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Role</th>
+            <?php
+            if($_SESSION["fpm_logged_in"] === true){
               ?>
-            </tr>
-            <tbody>
+              <th>E-Mail</th>
               <?php
-              foreach($authors as $author){
-                ?>
-                <tr>
-                  <td><a href="index.php?plan=<?=htmlspecialchars($_GET["plan"])?>&amp;highlight_author=<?=$author["fullname"]?>">X</a></td>
-                  <td><?=$author["firstname"]?></td>
-                  <td><?=$author["lastname"]?></td>
-                  <td><?=$author["role"]?></td>
-                  <?php
-                  if($_SESSION["fpm_logged_in"] === true){
-                    ?>
-                    <td><a href="mailto:<?=$author["email"]?>"><?=$author["email"]?></a></td>
-                    <?php
-                  }
+            }
+            ?>
+          </tr>
+          <tbody>
+            <?php
+            foreach($authors as $author){
+              ?>
+              <tr>
+                <td><a href="index.php?plan=<?=htmlspecialchars($_GET["plan"])?>&amp;highlight_author=<?=$author["fullname"]?>">X</a></td>
+                <td><?=$author["firstname"]?></td>
+                <td><?=$author["lastname"]?></td>
+                <td><?=$author["role"]?></td>
+                <?php
+                if($_SESSION["fpm_logged_in"] === true){
                   ?>
-                </tr>
-                <?php
-              }
-              ?>
-            </tbody>
-          </table>
-        </div>
-        <?php
-      }
+                  <td><a href="mailto:<?=$author["email"]?>"><?=$author["email"]?></a></td>
+                  <?php
+                }
+                ?>
+              </tr>
+              <?php
+            }
+            ?>
+          </tbody>
+        </table>
+      </div>
+      <?php
     } else {
       ?>
       <p class="file_not_found">File not found!</p>
