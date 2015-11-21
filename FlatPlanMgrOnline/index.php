@@ -1,4 +1,4 @@
-<?php session_start(); ?>
+<?php require("session_start.php"); ?>
 <?php require("settings.php"); ?>
 <?php
 if(isset($_GET["plan"])){

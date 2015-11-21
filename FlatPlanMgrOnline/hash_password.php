@@ -1,4 +1,4 @@
-<?php session_start(); ?>
+<?php require("session_start.php"); ?>
 <?php include("settings.php"); ?>
 
 <?php
