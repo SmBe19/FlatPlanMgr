@@ -1,20 +1,22 @@
 package com.smeanox.apps.flatplanmgr;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Controller for MainView
@@ -80,6 +82,9 @@ public class MainViewController {
     @FXML
     private TextField CategoryName;
 
+    @FXML
+    private FlowPane StoriesContainer;
+
     public MainViewController(MainView mainView) {
         this.mainView = mainView;
     }
@@ -136,6 +141,32 @@ public class MainViewController {
 
             AuthorList.setItems(mainView.getFlatPlan().getAuthors());
             CategoryList.setItems(mainView.getFlatPlan().getCategories());
+
+            initStories();
+        }
+    }
+
+    void initStories(){
+        for (Story story : mainView.getFlatPlan().getStories()) {
+            addStoryControl(story);
+        }
+    }
+
+    public void addStoryControl(Story story){
+        FlatPlan flatPlan = mainView.getFlatPlan();
+
+        try {
+            FXMLLoader loader = new FXMLLoader(MainView.class.getResource("StoryControl.fxml"));
+            StoryControlController controller = new StoryControlController(story);
+            loader.setController(controller);
+            Pane pane = loader.load();
+            controller.setAuthors(flatPlan.getAuthors());
+            controller.setCategories(flatPlan.getCategories());
+            controller.initListeners();
+
+            StoriesContainer.getChildren().add(pane);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

@@ -121,6 +121,9 @@
       </Accordion>
    </right>
    <center>
-      <ScrollPane prefHeight="100.0" prefWidth="100.0" BorderPane.alignment="CENTER" />
+      <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" BorderPane.alignment="CENTER">
+         <content>
+            <FlowPane fx:id="StoriesContainer" />
+         </content></ScrollPane>
    </center>
 </BorderPane>
