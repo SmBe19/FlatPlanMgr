@@ -1,4 +1,3 @@
-<Files "users.txt" "*.csv">
-Order Allow,Deny
+<Files users.txt>
 Deny from all
 </Files>
