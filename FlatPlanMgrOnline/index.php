@@ -1,27 +1,19 @@
 <?php require("session_start.php"); ?>
 <?php require("settings.php"); ?>
+<?php require("helpers.php"); ?>
 <?php
 if(isset($_GET["plan"])){
-  $files = scandir($FPM_SETTINGS["root_dir"]);
-  foreach($files as $file){
-    if(md5($file) == $_GET["plan"] && is_file($FPM_SETTINGS["root_dir"]."/".$file)){
-      $plan_file = $FPM_SETTINGS["root_dir"]."/".$file;
-
-      $file_ext = substr($plan_file, strrpos($plan_file, "."));
-      $file_name = substr($plan_file, 0, strlen($plan_file) - strlen($file_ext));
-      $plan_name = substr($file_name, strrpos($file_name, "/") + 1);
-      $authors_file = $file_name.".authors".$file_ext;
-      if(!is_file($authors_file)){
-        unset($authors_file);
-      }
-      break;
-    }
+  $plan_file = get_file_name_from_hash($_GET["plan"]);
+  $authors_file = false;
+  if($plan_file !== false){
+    $authors_file = get_authors_file($plan_file);
   }
 
-  if(isset($plan_file)){
+  $plan = [];
+  if($plan_file !== false){
+    $plan_name = pathinfo($plan_file, PATHINFO_FILENAME);
     $plan_raw = file_get_contents($plan_file);
     $lines = explode("\n", str_replace("\r\n", "\n", $plan_raw));
-    $plan = [];
     foreach($lines as $line){
       $story = [];
       $parts = explode(";", $line);
@@ -45,7 +37,7 @@ if(isset($_GET["plan"])){
   }
 
   $authors = [];
-  if(isset($authors_file)){
+  if($authors_file !== false){
     $authors_raw = file_get_contents($authors_file);
     $lines = explode("\n", str_replace("\r\n", "\n", $authors_raw));
     foreach($lines as $line){
@@ -97,7 +89,7 @@ if(isset($_GET["plan"])){
   <body>
     <h1 class="fp_index_title"><?=$FPM_SETTINGS["title"]?></h1>
     <?php
-    if(isset($plan_file)){
+    if($plan_file !== false){
       ?>
       <div class="fp_plan">
         <h2 class="fp_plan_name"><?=$plan_name?></h2>

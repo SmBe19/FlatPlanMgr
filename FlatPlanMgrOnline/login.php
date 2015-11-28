@@ -1,23 +1,13 @@
 <?php require("session_start.php"); ?>
 <?php require("settings.php"); ?>
-
+<?php require("helpers.php"); ?>
 <?php
 if(isset($_GET["action"])){
   if($_GET["action"] == "logout"){
-    session_unset();
-    session_destroy();
-      $_SESSION["fpm_logged_in"] = false;
+    logout();
   } else if($_GET["action"] == "login"){
-    if(isset($_POST["login_submit"]) && isset($_POST["username"]) && isset($_POST["password"])){
-      $user_list = file_get_contents($FPM_SETTINGS["users_file"]);
-      foreach(explode("\n", str_replace("\r\n", "\n", $user_list)) as $user_line){
-        $parts = explode(":", $user_line);
-        if($_POST["username"] == $parts[0] && crypt($_POST["password"], $FPM_SETTINGS["login_salt"]) == $parts[1]){
-          $_SESSION["fpm_logged_in"] = true;
-          $_SESSION["fpm_username"] = $parts[0];
-          break;
-        }
-      }
+    if(isset($_POST["username"]) && isset($_POST["password"])){
+      login($_POST["username"], $_POST["password"]);
     }
   }
 }

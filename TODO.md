@@ -6,14 +6,11 @@
 * download & upload to website
 
 ### can
+
 * drag & drop
 
 ## Online
 ### need
-
-* Legend
-* Link to unhighlight
-* API for Offline part
 
 ### can
 
