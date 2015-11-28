@@ -2,9 +2,10 @@
 <?php require("settings.php"); ?>
 <?php require("helpers.php"); ?>
 <?php
+$plan_file = false;
+$authors_file = false;
 if(isset($_GET["plan"])){
   $plan_file = get_file_name_from_hash($_GET["plan"]);
-  $authors_file = false;
   if($plan_file !== false){
     $authors_file = get_authors_file($plan_file);
   }
@@ -164,6 +165,18 @@ if(isset($_GET["plan"])){
           </tbody>
         </table>
       </div>
+      <div class="fp_legend">
+        <h2>Legend</h2>
+        <?php
+        foreach($status_list as $key => $name){
+          ?>
+          <div class="fp_legend_entry fp_page_status_<?=$key?>">
+            <p class="fp_legend_name"><?=$name?></p>
+          </div>
+          <?php
+        }
+        ?>
+      </div>
       <?php
     } else {
       ?>
@@ -171,17 +184,5 @@ if(isset($_GET["plan"])){
       <?php
     }
     ?>
-    <div class="fp_legend">
-      <h2>Legend</h2>
-      <?php
-      foreach($status_list as $key => $name){
-        ?>
-        <div class="fp_legend_entry fp_page_status_<?=$key?>">
-          <p class="fp_legend_name"><?=$name?></p>
-        </div>
-        <?php
-      }
-      ?>
-    </div>
   </body>
 </html>

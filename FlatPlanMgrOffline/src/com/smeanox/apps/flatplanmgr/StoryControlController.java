@@ -18,7 +18,7 @@ import javafx.scene.control.TextField;
  */
 public class StoryControlController {
 
-    public static final String STYLE_CLASS_ERROR_TEXT_FIELD = "textFieldError";
+    public final static String STYLE_CLASS_ERROR_TEXT_FIELD = "textFieldError";
 
     @FXML
     private Label StoryTitleLabel;

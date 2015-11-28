@@ -12,6 +12,8 @@
 ## Online
 ### need
 
+* API fix download charset
+
 ### can
 
 * Download csv for logged in

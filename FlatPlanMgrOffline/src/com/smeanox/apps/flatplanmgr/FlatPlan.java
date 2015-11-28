@@ -3,10 +3,8 @@ package com.smeanox.apps.flatplanmgr;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 /**
@@ -28,7 +26,7 @@ public class FlatPlan {
      * Create a new FlatPlan from a file
      * @param file the file
      */
-    public FlatPlan(File file){
+    public FlatPlan(File file) throws IOException {
         this();
 
         createFromFile(file);
@@ -83,7 +81,7 @@ public class FlatPlan {
      * @param file the flat plan file
      * @return the file with the authors
      */
-    private File createAuthorsFile(File file){
+    public static File createAuthorsFile(File file){
         String name = file.getName().substring(0, file.getName().lastIndexOf('.'));
         String ext = file.getName().substring(file.getName().lastIndexOf('.'));
         return new File(file.getParentFile(), name + ".authors" + ext);
@@ -93,14 +91,18 @@ public class FlatPlan {
      * Create a new FlatPlan from a file
      * @param file the file
      */
-    private void createFromFile(File file){
+    private void createFromFile(File file) throws IOException {
+        if(!file.exists()){
+            throw new IOException("File doesn't exist: " + file.getAbsolutePath());
+        }
+
         this.file = file;
 
         try {
             File authorFile = createAuthorsFile(file);
 
             if(authorFile.exists()) {
-                Files.lines(authorFile.toPath()).forEach(s -> {
+                Files.lines(authorFile.toPath(), StandardCharsets.UTF_8).forEach(s -> {
                     String[] partsA = s.split(";");
                     String[] parts = new String[] {"", "", "", ""};
                     System.arraycopy(partsA, 0, parts, 0, partsA.length);
@@ -110,7 +112,10 @@ public class FlatPlan {
                 });
             }
 
-            Files.lines(file.toPath()).forEach(s -> {
+            Files.lines(file.toPath(), StandardCharsets.UTF_8).forEach(s -> {
+                if(s.trim().isEmpty()){
+                    return;
+                }
                 String[] parts = s.split(";");
                 if(parts.length < 7){
                     return;
@@ -127,7 +132,7 @@ public class FlatPlan {
                 }
                 stories.add(new Story(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), parts[2], author, category, parts[5], StoryStatus.values()[Integer.parseInt(parts[6])-1]));
             });
-        } catch (IOException | NumberFormatException e) {
+        } catch (NumberFormatException e) {
             e.printStackTrace();
         }
     }
@@ -150,19 +155,22 @@ public class FlatPlan {
     /**
      * Save the flat plan to the given file
      * @param file the file
+     * @param isCopy whether this is a copy (and thus the file path shouldn't be updated)
      */
-    public void save(File file){
-        this.file = file;
+    public void save(File file, boolean isCopy){
+        if(!isCopy) {
+            this.file = file;
+        }
 
         File authorFile = createAuthorsFile(file);
 
         try {
-            PrintWriter writer = new PrintWriter(authorFile);
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(authorFile), StandardCharsets.UTF_8));
             for(Author author : authors){
                 writer.println(joinValues(";", author.getFirstName(), author.getLastName(), author.getRole(), author.getMailAddress()));
             }
             writer.close();
-            writer = new PrintWriter(file);
+            writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8));
             for(Story story : stories){
                 writer.println(joinValues(";", story.getStart(), story.getLength(), story.getTitle(), story.getAuthor().getFullName(),
                         story.getCategory().getName(), story.getFileFormat(), story.getStatus().ordinal() + 1));
@@ -171,6 +179,5 @@ public class FlatPlan {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
     }
 }

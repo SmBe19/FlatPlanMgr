@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -16,9 +17,17 @@ public class MainView extends Application {
     private Stage primaryStage;
     private BorderPane rootLayout;
     private FlatPlan flatPlan;
+    private APIWrapper apiWrapper;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        try{
+            apiWrapper = new APIWrapper(new File(APIWrapper.CONFIG_DEFAULT_FILE_NAME));
+        } catch (IOException e){
+            System.out.println(e.getMessage());
+            apiWrapper = new APIWrapper();
+        }
+
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("FlatPlan");
 
@@ -57,6 +66,10 @@ public class MainView extends Application {
 
     public void setFlatPlan(FlatPlan flatPlan) {
         this.flatPlan = flatPlan;
+    }
+
+    public APIWrapper getApiWrapper() {
+        return apiWrapper;
     }
 
     public static void main(String[] args){

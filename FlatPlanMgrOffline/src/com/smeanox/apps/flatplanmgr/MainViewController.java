@@ -9,10 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
@@ -39,6 +36,12 @@ public class MainViewController {
 
     @FXML
     private MenuItem CloseMenuItem;
+
+    @FXML
+    private MenuItem UploadMenuItem;
+
+    @FXML
+    private MenuItem DownloadMenuItem;
 
     @FXML
     private Button StoriesAdd;
@@ -146,45 +149,271 @@ public class MainViewController {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV", "*.csv"));
         File file = fileChooser.showOpenDialog(mainView.getPrimaryStage());
         if(file != null){
-            mainView.setFlatPlan(new FlatPlan(file));
-
-            SaveMenuItem.setDisable(false);
-            SaveAsMenuItem.setDisable(false);
-
-            AuthorList.setItems(mainView.getFlatPlan().getAuthors());
-            CategoryList.setItems(mainView.getFlatPlan().getCategories());
-
-            initStories();
+            openFile(file);
         }
     }
 
+    @FXML
+    void saveAction(ActionEvent event) {
+        if(mainView.getFlatPlan() == null){
+            return;
+        }
+        if(mainView.getFlatPlan().getFile() != null){
+            mainView.getFlatPlan().save(mainView.getFlatPlan().getFile(), false);
+        } else {
+            saveAsAction(event);
+        }
+    }
+
+    @FXML
+    void saveAsAction(ActionEvent event) {
+        if(mainView.getFlatPlan() == null){
+            return;
+        }
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save flat plan");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV", "*.csv"));
+        if(mainView.getFlatPlan().getFile() != null) {
+            fileChooser.setInitialDirectory(mainView.getFlatPlan().getFile().getParentFile());
+            fileChooser.setInitialFileName(mainView.getFlatPlan().getFile().getName());
+        }
+        File file = fileChooser.showSaveDialog(mainView.getPrimaryStage());
+        if(file != null){
+            mainView.getFlatPlan().save(file, false);
+        }
+    }
+
+    @FXML
+    void sortStories(ActionEvent event) {
+        mainView.getFlatPlan().getStories().sort((o1, o2) -> o1.getStart() - o2.getStart());
+    }
+
+    @FXML
+    void addAuthor(ActionEvent event) {
+        AuthorList.getItems().add(new Author("new", "author", "", ""));
+    }
+
+    @FXML
+    void addCategory(ActionEvent event) {
+        CategoryList.getItems().add(new Category("New category"));
+    }
+
+    @FXML
+    void addStory(ActionEvent event) {
+        mainView.getFlatPlan().getStories().add(new Story());
+    }
+
+    @FXML
+    void deleteAuthor(ActionEvent event) {
+        if(AuthorList.getSelectionModel().getSelectedItem() == null){
+            return;
+        }
+        AuthorList.getItems().remove(AuthorList.getSelectionModel().getSelectedItem());
+    }
+
+    @FXML
+    void deleteCategory(ActionEvent event) {
+        if(CategoryList.getSelectionModel().getSelectedItem() == null){
+            return;
+        }
+        CategoryList.getItems().remove(CategoryList.getSelectionModel().getSelectedItem());
+    }
+
+    @FXML
+    void downAuthor(ActionEvent event) {
+        downList(AuthorList);
+    }
+
+    @FXML
+    void downCategory(ActionEvent event) {
+        downList(CategoryList);
+    }
+
+    @FXML
+    void downloadAction(ActionEvent event) {
+        String defaultValue = "";
+        if(mainView.getFlatPlan() != null && mainView.getFlatPlan().getFile() != null) {
+            defaultValue = mainView.getFlatPlan().getFile().getName();
+            defaultValue = defaultValue.substring(0, defaultValue.lastIndexOf('.'));
+        }
+        TextInputDialog dialog = new TextInputDialog(defaultValue);
+        dialog.setTitle("Plan name");
+        dialog.setHeaderText("Plan name");
+        dialog.setContentText("Please enter the plan name");
+
+        Optional<String> result = dialog.showAndWait();
+
+        if(result.isPresent()){
+            try {
+                File tmpFile = File.createTempFile("fpm_offline", ".csv");
+
+                File authorsTmpFile = FlatPlan.createAuthorsFile(tmpFile);
+                if (mainView.getApiWrapper().download(result.get() + ".csv", tmpFile, authorsTmpFile)) {
+                    System.out.println(tmpFile.getAbsolutePath());
+                    openFile(tmpFile);
+                } else {
+                    displayExceptionAlert(mainView.getApiWrapper().getLastException());
+                }
+
+//                if (!authorsTmpFile.delete()){
+//                    System.err.println("Could not delete tmp file: " + authorsTmpFile.getAbsolutePath());
+//                }
+//                if (!tmpFile.delete()){
+//                    System.err.println("Could not delete tmp file: " + tmpFile.getAbsolutePath());
+//                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @FXML
+    void upAuthor(ActionEvent event) {
+        upList(AuthorList);
+    }
+
+    @FXML
+    void upCategory(ActionEvent event) {
+        upList(CategoryList);
+    }
+
+    @FXML
+    void uploadAction(ActionEvent event) {
+        if(mainView.getFlatPlan() == null){
+            return;
+        }
+
+        String defaultValue = "";
+        if(mainView.getFlatPlan().getFile() != null) {
+            defaultValue = mainView.getFlatPlan().getFile().getName();
+            defaultValue = defaultValue.substring(0, defaultValue.lastIndexOf('.'));
+        }
+        TextInputDialog dialog = new TextInputDialog(defaultValue);
+        dialog.setTitle("Plan name");
+        dialog.setHeaderText("Plan name");
+        dialog.setContentText("Please enter the plan name");
+
+        Optional<String> result = dialog.showAndWait();
+
+        if(result.isPresent()){
+            try {
+                File tmpFile = File.createTempFile("fpm_offline", ".csv");
+
+                mainView.getFlatPlan().save(tmpFile, true);
+
+                File authorsTmpFile = FlatPlan.createAuthorsFile(tmpFile);
+                if(!mainView.getApiWrapper().upload(result.get() + ".csv", tmpFile, authorsTmpFile)){
+                    displayExceptionAlert(mainView.getApiWrapper().getLastException());
+                }
+
+                if (!authorsTmpFile.delete()){
+                    System.err.println("Could not delete tmp file: " + authorsTmpFile.getAbsolutePath());
+                }
+                if (!tmpFile.delete()){
+                    System.err.println("Could not delete tmp file: " + tmpFile.getAbsolutePath());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    <T> void downList(ListView<T> list){
+        int selectedIndex = list.getSelectionModel().getSelectedIndex();
+        if(selectedIndex >= 0 && selectedIndex < list.getItems().size() - 1){
+            Collections.swap(list.getItems(), selectedIndex, selectedIndex+1);
+        }
+        list.getSelectionModel().select(selectedIndex + 1);
+    }
+
+    <T> void upList(ListView<T> list){
+        int selectedIndex = list.getSelectionModel().getSelectedIndex();
+        if(selectedIndex > 0 && selectedIndex < list.getItems().size()){
+            Collections.swap(list.getItems(), selectedIndex, selectedIndex-1);
+        }
+        list.getSelectionModel().select(selectedIndex - 1);
+    }
+
+    private class TextFieldUpdate<T> implements ChangeListener<String>{
+
+        private ListView<T> listView;
+        private TextFieldUpdateSetValue<T> textFieldUpdateSetValue;
+        private TextFieldUpdateGetValue<T> textFieldUpdateGetValue;
+
+        public TextFieldUpdate(ListView<T> listView, TextFieldUpdateSetValue<T> textFieldUpdateSetValue,
+                               TextFieldUpdateGetValue<T> textFieldUpdateGetValue) {
+            this.listView = listView;
+            this.textFieldUpdateSetValue = textFieldUpdateSetValue;
+            this.textFieldUpdateGetValue = textFieldUpdateGetValue;
+        }
+
+        @Override
+        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+            if(CategoryList.getSelectionModel().getSelectedItem() == null
+                    || !textFieldUpdateGetValue.getValue(listView.getSelectionModel().getSelectedItem()).equals(oldValue)){
+                return;
+            }
+            textFieldUpdateSetValue.setValue(listView.getSelectionModel().getSelectedItem(), newValue);
+            int selectedIndex = listView.getSelectionModel().getSelectedIndex();
+
+            // dirty hack to update list view
+            listView.getItems().set(selectedIndex, listView.getItems().get(selectedIndex));
+        }
+    }
+
+    private interface TextFieldUpdateSetValue<T>{
+        void setValue(T object, String value);
+    }
+
+    private interface TextFieldUpdateGetValue<T>{
+        String getValue(T object);
+    }
+
+    private void openFile(File file) {
+        try {
+            mainView.setFlatPlan(new FlatPlan(file));
+        } catch (IOException e) {
+            displayExceptionAlert(e);
+        }
+
+        SaveMenuItem.setDisable(false);
+        SaveAsMenuItem.setDisable(false);
+        UploadMenuItem.setDisable(false);
+
+        AuthorList.setItems(mainView.getFlatPlan().getAuthors());
+        CategoryList.setItems(mainView.getFlatPlan().getCategories());
+
+        initStories();
+    }
+
     void initStories(){
+        StoriesContainer.getChildren().clear();
         for (Story story : mainView.getFlatPlan().getStories()) {
             addStoryControl(story);
         }
         mainView.getFlatPlan().getStories().addListener((ListChangeListener<Story>) c -> {
-            while(c.next()) {
-                if(c.wasRemoved()) {
+            while (c.next()) {
+                if (c.wasRemoved()) {
                     for (Story s : c.getRemoved()) {
                         removeStoryControl(s);
                     }
                 }
-                if(c.wasAdded()) {
+                if (c.wasAdded()) {
                     for (Story s : c.getAddedSubList()) {
                         addStoryControl(s);
                     }
                 }
-                if(c.wasPermutated()){
+                if (c.wasPermutated()) {
                     List<Node> copy = new ArrayList<>(StoriesContainer.getChildren());
-                    for(int i = 0; i < c.getList().size(); i++){
-                        if(c.getPermutation(i) != i) {
+                    for (int i = 0; i < c.getList().size(); i++) {
+                        if (c.getPermutation(i) != i) {
                             StoriesContainer.getChildren().remove(copy.get(i));
                             StoriesContainer.getChildren().add(c.getPermutation(i), copy.get(i));
                         }
                     }
                 }
 
-                if(!checkOrder()){
+                if (!checkOrder()) {
                     System.err.println("Failed hard!!!");
                 }
             }
@@ -242,137 +471,15 @@ public class MainViewController {
         }
     }
 
-    @FXML
-    void saveAction(ActionEvent event) {
-        if(mainView.getFlatPlan() == null){
-            return;
+
+    private void displayExceptionAlert(Exception e){
+        if(e != null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setHeaderText("ERROR");
+            alert.setContentText(e.getMessage());
+            alert.show();
         }
-        if(mainView.getFlatPlan().getFile() != null){
-            mainView.getFlatPlan().save(mainView.getFlatPlan().getFile());
-        } else {
-            saveAsAction(event);
-        }
-    }
-
-    @FXML
-    void saveAsAction(ActionEvent event) {
-        if(mainView.getFlatPlan() == null){
-            return;
-        }
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save flat plan");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV", "*.csv"));
-        File file = fileChooser.showSaveDialog(mainView.getPrimaryStage());
-        if(file != null){
-            mainView.getFlatPlan().save(file);
-        }
-    }
-
-    @FXML
-    void sortStories(ActionEvent event) {
-        mainView.getFlatPlan().getStories().sort((o1, o2) -> o1.getStart() - o2.getStart());
-    }
-
-    @FXML
-    void addAuthor(ActionEvent event) {
-        AuthorList.getItems().add(new Author("new", "author", "", ""));
-    }
-
-    @FXML
-    void addCategory(ActionEvent event) {
-        CategoryList.getItems().add(new Category("New category"));
-    }
-
-    @FXML
-    void addStory(ActionEvent event) {
-        mainView.getFlatPlan().getStories().add(new Story());
-    }
-
-    @FXML
-    void deleteAuthor(ActionEvent event) {
-        if(AuthorList.getSelectionModel().getSelectedItem() == null){
-            return;
-        }
-        AuthorList.getItems().remove(AuthorList.getSelectionModel().getSelectedItem());
-    }
-
-    @FXML
-    void deleteCategory(ActionEvent event) {
-        if(CategoryList.getSelectionModel().getSelectedItem() == null){
-            return;
-        }
-        CategoryList.getItems().remove(CategoryList.getSelectionModel().getSelectedItem());
-    }
-
-    @FXML
-    void downAuthor(ActionEvent event) {
-        downList(AuthorList);
-    }
-
-    @FXML
-    void downCategory(ActionEvent event) {
-        downList(CategoryList);
-    }
-
-    @FXML
-    void upAuthor(ActionEvent event) {
-        upList(AuthorList);
-    }
-
-    @FXML
-    void upCategory(ActionEvent event) {
-        upList(CategoryList);
-    }
-
-    <T> void downList(ListView<T> list){
-        int selectedIndex = list.getSelectionModel().getSelectedIndex();
-        if(selectedIndex >= 0 && selectedIndex < list.getItems().size() - 1){
-            Collections.swap(list.getItems(), selectedIndex, selectedIndex+1);
-        }
-        list.getSelectionModel().select(selectedIndex + 1);
-    }
-
-    <T> void upList(ListView<T> list){
-        int selectedIndex = list.getSelectionModel().getSelectedIndex();
-        if(selectedIndex > 0 && selectedIndex < list.getItems().size()){
-            Collections.swap(list.getItems(), selectedIndex, selectedIndex-1);
-        }
-        list.getSelectionModel().select(selectedIndex - 1);
-    }
-
-    private class TextFieldUpdate<T> implements ChangeListener<String>{
-
-        private ListView<T> listView;
-        private TextFieldUpdateSetValue<T> textFieldUpdateSetValue;
-        private TextFieldUpdateGetValue<T> textFieldUpdateGetValue;
-
-        public TextFieldUpdate(ListView<T> listView, TextFieldUpdateSetValue<T> textFieldUpdateSetValue,
-                               TextFieldUpdateGetValue<T> textFieldUpdateGetValue) {
-            this.listView = listView;
-            this.textFieldUpdateSetValue = textFieldUpdateSetValue;
-            this.textFieldUpdateGetValue = textFieldUpdateGetValue;
-        }
-
-        @Override
-        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-            if(CategoryList.getSelectionModel().getSelectedItem() == null
-                    || !textFieldUpdateGetValue.getValue(listView.getSelectionModel().getSelectedItem()).equals(oldValue)){
-                return;
-            }
-            textFieldUpdateSetValue.setValue(listView.getSelectionModel().getSelectedItem(), newValue);
-            int selectedIndex = listView.getSelectionModel().getSelectedIndex();
-
-            // dirty hack to update list view
-            listView.getItems().set(selectedIndex, listView.getItems().get(selectedIndex));
-        }
-    }
-
-    private interface TextFieldUpdateSetValue<T>{
-        void setValue(T object, String value);
-    }
-
-    private interface TextFieldUpdateGetValue<T>{
-        String getValue(T object);
     }
 
 }

@@ -17,6 +17,12 @@
               <MenuItem fx:id="CloseMenuItem" mnemonicParsing="false" onAction="#closeAction" text="Close" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Online">
+              <items>
+                <MenuItem fx:id="UploadMenuItem" disable="true" mnemonicParsing="false" onAction="#uploadAction" text="Upload ..." />
+                  <MenuItem fx:id="DownloadMenuItem" mnemonicParsing="false" onAction="#downloadAction" text="Download ..." />
+              </items>
+            </Menu>
         </menus>
       </MenuBar>
    </top>

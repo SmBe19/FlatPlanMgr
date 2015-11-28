@@ -2,7 +2,10 @@
 <?php require("settings.php"); ?>
 <?php require("helpers.php"); ?>
 <?php
-if($_REQUEST["v"] == 1){
+if(isset($_REQUEST["v"]) && $_REQUEST["v"] == 1){
+  if(!isset($_REQUEST["action"])){
+    $_REQUEST["action"] = "";
+  }
   switch ($_REQUEST["action"]) {
 
     case "logout":
@@ -26,6 +29,8 @@ if($_REQUEST["v"] == 1){
 
     case "download_plan":
       if($_SESSION["fpm_logged_in"] !== true){
+        header("HTTP/1.1 401 Missing login");
+        echo "401 Missing login";
         break;
       }
       if(isset($_REQUEST["plan"])){
@@ -35,7 +40,7 @@ if($_REQUEST["v"] == 1){
           echo "404 not found";
           break;
         }
-        header("Content-Type: text/plain");
+        header("Content-Type: text/plain; charset=utf-8");
         readfile($plan_file);
         echo "---"."\r\n";
         $authors_file = get_authors_file($plan_file);
@@ -50,15 +55,12 @@ if($_REQUEST["v"] == 1){
 
     case "upload_plan":
       if($_SESSION["fpm_logged_in"] !== true){
+        header("HTTP/1.1 401 Missing login");
+        echo "401 Missing login";
         break;
       }
-      if(isset($_REQUEST["plan"]) && isset($_FILES["fileUpload"])){
-        $plan_raw = file_get_contents($_FILES["fileUpload"]["tmp_name"]);
-        unlink($_FILES["fileUpload"]["tmp_name"]);
-
-        $plan_raw = str_replace("\r\n", "\n", $plan_raw);
-        $parts = explode("---\n", $plan_raw);
-        $plan_file = $_REQUEST["plan"].".csv";
+      if(isset($_REQUEST["plan"]) && isset($_FILES["fileUploadPlan"])){
+        $plan_file = $_REQUEST["plan"];
 
         if(pathinfo($plan_file, PATHINFO_BASENAME) !== $plan_file){
           header("HTTP/1.1 400 Bad Request (invalid argument value for `plan`)");
@@ -70,9 +72,9 @@ if($_REQUEST["v"] == 1){
         $plan_file = $FPM_SETTINGS["root_dir"]."/".$plan_base_file;
         $authors_file = get_authors_file($plan_file, false);
 
-        file_put_contents($plan_file, $parts[0]);
-        if(strlen($parts[1]) > 0){
-          file_put_contents($authors_file, $parts[1]);
+        move_uploaded_file($_FILES["fileUploadPlan"]["tmp_name"], $plan_file);
+        if(isset($_FILES["fileUploadAuthors"]["tmp_name"])){
+          move_uploaded_file($_FILES["fileUploadAuthors"]["tmp_name"], $authors_file);
         }
 
         header("Content-Type: text/plain");
