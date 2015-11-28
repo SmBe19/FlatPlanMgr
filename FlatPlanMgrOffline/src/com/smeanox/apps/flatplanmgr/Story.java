@@ -13,6 +13,11 @@ public class Story {
     private StoryStatus status;
 
     public Story() {
+        start = 0;
+        length = 1;
+        title = "";
+        fileFormat = "";
+        status = StoryStatus.Missing;
     }
 
     public Story(int start, int length, String title, Author author, Category category, String fileFormat, StoryStatus status) {

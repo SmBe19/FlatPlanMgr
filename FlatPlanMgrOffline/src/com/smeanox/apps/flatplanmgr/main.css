@@ -1,0 +1,8 @@
+.storyControl{
+    -fx-border-color: #AAA;
+    -fx-border-width: 1px;
+}
+
+.textFieldError{
+    -fx-control-inner-background: #F00;
+}

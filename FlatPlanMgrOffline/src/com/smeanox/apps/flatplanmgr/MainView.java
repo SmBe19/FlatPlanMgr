@@ -35,6 +35,7 @@ public class MainView extends Application {
             controller.initListeners();
 
             Scene scene = new Scene(rootLayout);
+            scene.getStylesheets().add(MainView.class.getResource("main.css").toString());
             primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException e) {

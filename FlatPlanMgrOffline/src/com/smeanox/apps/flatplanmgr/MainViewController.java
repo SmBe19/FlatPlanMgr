@@ -3,9 +3,12 @@ package com.smeanox.apps.flatplanmgr;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
@@ -16,7 +19,7 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.*;
 
 /**
  * Controller for MainView
@@ -36,6 +39,12 @@ public class MainViewController {
 
     @FXML
     private MenuItem CloseMenuItem;
+
+    @FXML
+    private Button StoriesAdd;
+
+    @FXML
+    private Button StoriesSort;
 
     @FXML
     private ListView<Author> AuthorList;
@@ -85,7 +94,10 @@ public class MainViewController {
     @FXML
     private FlowPane StoriesContainer;
 
+    private Map<Node, StoryControlController> nodeToStoryControlController;
+
     public MainViewController(MainView mainView) {
+        nodeToStoryControlController = new HashMap<>();
         this.mainView = mainView;
     }
 
@@ -115,11 +127,11 @@ public class MainViewController {
             AuthorMail.setText(newValue.getMailAddress());
         });
 
-        CategoryName.textProperty().addListener(new TextFieldUpdate<>(CategoryList, Category::setName));
-        AuthorFirstName.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setFirstName));
-        AuthorLastName.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setLastName));
-        AuthorRole.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setRole));
-        AuthorMail.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setMailAddress));
+        CategoryName.textProperty().addListener(new TextFieldUpdate<>(CategoryList, Category::setName, Category::getName));
+        AuthorFirstName.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setFirstName, Author::getFirstName));
+        AuthorLastName.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setLastName, Author::getLastName));
+        AuthorRole.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setRole, Author::getRole));
+        AuthorMail.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setMailAddress, Author::getMailAddress));
     }
 
     @FXML
@@ -150,6 +162,53 @@ public class MainViewController {
         for (Story story : mainView.getFlatPlan().getStories()) {
             addStoryControl(story);
         }
+        mainView.getFlatPlan().getStories().addListener((ListChangeListener<Story>) c -> {
+            while(c.next()) {
+                if(c.wasRemoved()) {
+                    for (Story s : c.getRemoved()) {
+                        removeStoryControl(s);
+                    }
+                }
+                if(c.wasAdded()) {
+                    for (Story s : c.getAddedSubList()) {
+                        addStoryControl(s);
+                    }
+                }
+                if(c.wasPermutated()){
+                    List<Node> copy = new ArrayList<>(StoriesContainer.getChildren());
+                    for(int i = 0; i < c.getList().size(); i++){
+                        if(c.getPermutation(i) != i) {
+                            StoriesContainer.getChildren().remove(copy.get(i));
+                            StoriesContainer.getChildren().add(c.getPermutation(i), copy.get(i));
+                        }
+                    }
+                }
+
+                if(!checkOrder()){
+                    System.err.println("Failed hard!!!");
+                }
+            }
+        });
+    }
+
+    /**
+     * Checks whether the panes are in the same order as in the flat plan
+     * @return true if this holds
+     */
+    private boolean checkOrder(){
+        ObservableList<Story> stories = mainView.getFlatPlan().getStories();
+        for(int i = 0; i < stories.size(); i++){
+            StoryControlController con = nodeToStoryControlController.get(StoriesContainer.getChildren().get(i));
+            if(con == null){
+                System.err.println(i + ": con == null");
+                return false;
+            }
+            if(con.getStory() != stories.get(i)){
+                System.err.println(i + ": story != story");
+                return false;
+            }
+        }
+        return true;
     }
 
     public void addStoryControl(Story story){
@@ -157,16 +216,29 @@ public class MainViewController {
 
         try {
             FXMLLoader loader = new FXMLLoader(MainView.class.getResource("StoryControl.fxml"));
-            StoryControlController controller = new StoryControlController(story);
+            StoryControlController controller = new StoryControlController(flatPlan, story);
             loader.setController(controller);
             Pane pane = loader.load();
             controller.setAuthors(flatPlan.getAuthors());
             controller.setCategories(flatPlan.getCategories());
             controller.initListeners();
 
-            StoriesContainer.getChildren().add(pane);
+            nodeToStoryControlController.put(pane, controller);
+
+            int index = flatPlan.getStories().indexOf(story);
+            StoriesContainer.getChildren().add(index, pane);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void removeStoryControl(Story story){
+        for(Node node : StoriesContainer.getChildren()){
+            if(nodeToStoryControlController.containsKey(node) && nodeToStoryControlController.get(node).getStory() == story){
+                StoriesContainer.getChildren().remove(node);
+                nodeToStoryControlController.remove(node);
+                break;
+            }
         }
     }
 
@@ -197,6 +269,11 @@ public class MainViewController {
     }
 
     @FXML
+    void sortStories(ActionEvent event) {
+        mainView.getFlatPlan().getStories().sort((o1, o2) -> o1.getStart() - o2.getStart());
+    }
+
+    @FXML
     void addAuthor(ActionEvent event) {
         AuthorList.getItems().add(new Author("new", "author", "", ""));
     }
@@ -204,6 +281,11 @@ public class MainViewController {
     @FXML
     void addCategory(ActionEvent event) {
         CategoryList.getItems().add(new Category("New category"));
+    }
+
+    @FXML
+    void addStory(ActionEvent event) {
+        mainView.getFlatPlan().getStories().add(new Story());
     }
 
     @FXML
@@ -262,15 +344,19 @@ public class MainViewController {
 
         private ListView<T> listView;
         private TextFieldUpdateSetValue<T> textFieldUpdateSetValue;
+        private TextFieldUpdateGetValue<T> textFieldUpdateGetValue;
 
-        public TextFieldUpdate(ListView<T> listView, TextFieldUpdateSetValue<T> textFieldUpdateSetValue) {
+        public TextFieldUpdate(ListView<T> listView, TextFieldUpdateSetValue<T> textFieldUpdateSetValue,
+                               TextFieldUpdateGetValue<T> textFieldUpdateGetValue) {
             this.listView = listView;
             this.textFieldUpdateSetValue = textFieldUpdateSetValue;
+            this.textFieldUpdateGetValue = textFieldUpdateGetValue;
         }
 
         @Override
         public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-            if(CategoryList.getSelectionModel().getSelectedItem() == null){
+            if(CategoryList.getSelectionModel().getSelectedItem() == null
+                    || !textFieldUpdateGetValue.getValue(listView.getSelectionModel().getSelectedItem()).equals(oldValue)){
                 return;
             }
             textFieldUpdateSetValue.setValue(listView.getSelectionModel().getSelectedItem(), newValue);
@@ -283,6 +369,10 @@ public class MainViewController {
 
     private interface TextFieldUpdateSetValue<T>{
         void setValue(T object, String value);
+    }
+
+    private interface TextFieldUpdateGetValue<T>{
+        String getValue(T object);
     }
 
 }
