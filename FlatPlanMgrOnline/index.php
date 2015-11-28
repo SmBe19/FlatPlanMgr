@@ -82,6 +82,9 @@ if(isset($_GET["plan"])){
       $authors[$author["fullname"]] = $author;
     }
   }
+
+  $status_list = ["", "missing", "Received", "Received (no autolayout)", "layout in progress", "layout finished"];
+  unset($status_list[0]);
 }
 ?>
 
@@ -125,6 +128,13 @@ if(isset($_GET["plan"])){
       </div>
       <div class="fp_authors_list">
         <h2>Authors</h2>
+        <?php
+        if(isset($_GET["highlight_author"])){
+          ?>
+          <p class="fp_unhighlight_link"><a href="index.php?plan=<?=htmlspecialchars($_GET["plan"])?>">remove highlight</a></p>
+          <?php
+        }
+        ?>
         <table class="fp_authors_table">
           <tr class="fp_authors_table_header">
             <th>H</th>
@@ -169,5 +179,17 @@ if(isset($_GET["plan"])){
       <?php
     }
     ?>
+    <div class="fp_legend">
+      <h2>Legend</h2>
+      <?php
+      foreach($status_list as $key => $name){
+        ?>
+        <div class="fp_legend_entry fp_page_status_<?=$key?>">
+          <p class="fp_legend_name"><?=$name?></p>
+        </div>
+        <?php
+      }
+      ?>
+    </div>
   </body>
 </html>

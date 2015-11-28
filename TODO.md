@@ -3,20 +3,19 @@
 ## Offline
 ### need
 
-* display pages
-* edit pages
+* download & upload to website
 
 ### can
-* download & upload to website
+* drag & drop
 
 ## Online
 ### need
 
 * Legend
 * Link to unhighlight
+* API for Offline part
 
 ### can
 
 * Download csv for logged in
 * Upload csv for logged in
-* API for Offline part
