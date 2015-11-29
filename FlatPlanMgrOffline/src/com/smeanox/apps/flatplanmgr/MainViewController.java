@@ -16,6 +16,9 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -24,6 +27,9 @@ import java.util.*;
 public class MainViewController {
 
     MainView mainView;
+
+    @FXML
+    private MenuItem NewMenuItem;
 
     @FXML
     private MenuItem OpenMenuItem;
@@ -135,6 +141,8 @@ public class MainViewController {
         AuthorLastName.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setLastName, Author::getLastName));
         AuthorRole.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setRole, Author::getRole));
         AuthorMail.textProperty().addListener(new TextFieldUpdate<>(AuthorList, Author::setMailAddress, Author::getMailAddress));
+
+        setItems();
     }
 
     @FXML
@@ -181,6 +189,8 @@ public class MainViewController {
         if(file != null){
             mainView.getFlatPlan().save(file, false);
         }
+
+        updateTitle();
     }
 
     @FXML
@@ -245,7 +255,8 @@ public class MainViewController {
 
         if(result.isPresent()){
             try {
-                File tmpFile = File.createTempFile("fpm_offline", ".csv");
+                Path tempDirectory = Files.createTempDirectory("fpm_offline");
+                File tmpFile = new File(tempDirectory.toFile(), result.get() + ".csv");
 
                 File authorsTmpFile = FlatPlan.createAuthorsFile(tmpFile);
                 if (mainView.getApiWrapper().download(result.get() + ".csv", tmpFile, authorsTmpFile)) {
@@ -255,16 +266,24 @@ public class MainViewController {
                     displayExceptionAlert(mainView.getApiWrapper().getLastException());
                 }
 
-//                if (!authorsTmpFile.delete()){
-//                    System.err.println("Could not delete tmp file: " + authorsTmpFile.getAbsolutePath());
-//                }
-//                if (!tmpFile.delete()){
-//                    System.err.println("Could not delete tmp file: " + tmpFile.getAbsolutePath());
-//                }
+                if (!authorsTmpFile.delete()){
+                    System.err.println("Could not delete tmp file: " + authorsTmpFile.getAbsolutePath());
+                }
+                if (!tmpFile.delete()){
+                    System.err.println("Could not delete tmp file: " + tmpFile.getAbsolutePath());
+                }
+                tempDirectory.toFile().deleteOnExit();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    @FXML
+    void newAction(ActionEvent event) {
+        mainView.setFlatPlan(new FlatPlan());
+
+        setItems();
     }
 
     @FXML
@@ -349,15 +368,16 @@ public class MainViewController {
 
         @Override
         public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-            if(CategoryList.getSelectionModel().getSelectedItem() == null
+            if(listView.getSelectionModel().getSelectedItem() == null
                     || !textFieldUpdateGetValue.getValue(listView.getSelectionModel().getSelectedItem()).equals(oldValue)){
                 return;
             }
             textFieldUpdateSetValue.setValue(listView.getSelectionModel().getSelectedItem(), newValue);
-            int selectedIndex = listView.getSelectionModel().getSelectedIndex();
 
             // dirty hack to update list view
+            int selectedIndex = listView.getSelectionModel().getSelectedIndex();
             listView.getItems().set(selectedIndex, listView.getItems().get(selectedIndex));
+            listView.getSelectionModel().select(selectedIndex);
         }
     }
 
@@ -376,14 +396,21 @@ public class MainViewController {
             displayExceptionAlert(e);
         }
 
-        SaveMenuItem.setDisable(false);
-        SaveAsMenuItem.setDisable(false);
-        UploadMenuItem.setDisable(false);
+        setItems();
+    }
 
+    private void setItems(){
         AuthorList.setItems(mainView.getFlatPlan().getAuthors());
         CategoryList.setItems(mainView.getFlatPlan().getCategories());
 
         initStories();
+
+        updateTitle();
+    }
+
+    private void updateTitle(){
+        mainView.getPrimaryStage().setTitle("FlatPlanMgr - "
+                + (mainView.getFlatPlan().getFile() != null ? mainView.getFlatPlan().getFile().getName() : "New File"));
     }
 
     void initStories(){

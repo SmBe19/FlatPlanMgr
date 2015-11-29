@@ -242,7 +242,7 @@ public class APIWrapper {
         for(Pair<String, String> param : params) {
             writer.append("--").append(boundary).append(CRLF);
             writer.append("Content-Disposition: form-data; name=\"").append(param.getKey()).append("\"").append(CRLF);
-            writer.append("Content-Type: text/plain; charset=" + CONNECTION_CHARSET).append(CRLF);
+            writer.append("Content-Type: text/plain; charset=").append(CONNECTION_CHARSET).append(CRLF);
             writer.append(CRLF).append(param.getValue()).append(CRLF).flush();
         }
 
@@ -272,7 +272,7 @@ public class APIWrapper {
         InputStream in = connection.getInputStream();
 
         StringBuilder sb = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in, CONNECTION_CHARSET));
         for(String line; (line = reader.readLine()) != null;){
             sb.append(line);
             sb.append("\n");

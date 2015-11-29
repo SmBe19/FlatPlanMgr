@@ -29,7 +29,7 @@ public class MainView extends Application {
         }
 
         this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("FlatPlan");
+        this.primaryStage.setTitle("FlatPlanMgr");
 
         initRootLayout();
     }
@@ -41,6 +41,8 @@ public class MainView extends Application {
             MainViewController controller = new MainViewController(this);
             loader.setController(controller);
             rootLayout = loader.load();
+
+            flatPlan = new FlatPlan();
             controller.initListeners();
 
             Scene scene = new Scene(rootLayout);

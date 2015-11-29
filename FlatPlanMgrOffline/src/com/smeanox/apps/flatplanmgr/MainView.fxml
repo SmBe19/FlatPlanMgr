@@ -11,15 +11,16 @@
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
+                  <MenuItem fx:id="NewMenuItem" mnemonicParsing="false" onAction="#newAction" text="New" />
                   <MenuItem fx:id="OpenMenuItem" mnemonicParsing="false" onAction="#openAction" text="Open" />
-                  <MenuItem fx:id="SaveMenuItem" disable="true" mnemonicParsing="false" onAction="#saveAction" text="Save" />
-                  <MenuItem fx:id="SaveAsMenuItem" disable="true" mnemonicParsing="false" onAction="#saveAsAction" text="Save as ..." />
+                  <MenuItem fx:id="SaveMenuItem" mnemonicParsing="false" onAction="#saveAction" text="Save" />
+                  <MenuItem fx:id="SaveAsMenuItem" mnemonicParsing="false" onAction="#saveAsAction" text="Save as ..." />
               <MenuItem fx:id="CloseMenuItem" mnemonicParsing="false" onAction="#closeAction" text="Close" />
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="Online">
               <items>
-                <MenuItem fx:id="UploadMenuItem" disable="true" mnemonicParsing="false" onAction="#uploadAction" text="Upload ..." />
+                <MenuItem fx:id="UploadMenuItem" mnemonicParsing="false" onAction="#uploadAction" text="Upload ..." />
                   <MenuItem fx:id="DownloadMenuItem" mnemonicParsing="false" onAction="#downloadAction" text="Download ..." />
               </items>
             </Menu>
