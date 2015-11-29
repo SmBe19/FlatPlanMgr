@@ -3,16 +3,12 @@
 ## Offline
 ### need
 
-* download & upload to website
-
 ### can
 
 * drag & drop
 
 ## Online
 ### need
-
-* API fix download charset
 
 ### can
 

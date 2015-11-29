@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.input.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
@@ -11,17 +12,38 @@
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
-                  <MenuItem fx:id="NewMenuItem" mnemonicParsing="false" onAction="#newAction" text="New" />
-                  <MenuItem fx:id="OpenMenuItem" mnemonicParsing="false" onAction="#openAction" text="Open" />
-                  <MenuItem fx:id="SaveMenuItem" mnemonicParsing="false" onAction="#saveAction" text="Save" />
-                  <MenuItem fx:id="SaveAsMenuItem" mnemonicParsing="false" onAction="#saveAsAction" text="Save as ..." />
-              <MenuItem fx:id="CloseMenuItem" mnemonicParsing="false" onAction="#closeAction" text="Close" />
+                  <MenuItem fx:id="NewMenuItem" mnemonicParsing="false" onAction="#newAction" text="New">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="N" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="OpenMenuItem" mnemonicParsing="false" onAction="#openAction" text="Open">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="O" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="SaveMenuItem" mnemonicParsing="false" onAction="#saveAction" text="Save">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="SaveAsMenuItem" mnemonicParsing="false" onAction="#saveAsAction" text="Save as ...">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+              <MenuItem fx:id="CloseMenuItem" mnemonicParsing="false" onAction="#closeAction" text="Close">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="Q" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="Online">
               <items>
-                <MenuItem fx:id="UploadMenuItem" mnemonicParsing="false" onAction="#uploadAction" text="Upload ..." />
-                  <MenuItem fx:id="DownloadMenuItem" mnemonicParsing="false" onAction="#downloadAction" text="Download ..." />
+                <MenuItem fx:id="UploadMenuItem" mnemonicParsing="false" onAction="#uploadAction" text="Upload ...">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="U" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="DownloadMenuItem" mnemonicParsing="false" onAction="#downloadAction" text="Download ...">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="D" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
               </items>
             </Menu>
         </menus>

@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 
 /**
  * Controller for a Story
@@ -19,6 +20,11 @@ import javafx.scene.control.TextField;
 public class StoryControlController {
 
     public final static String STYLE_CLASS_ERROR_TEXT_FIELD = "textFieldError";
+    public final static String STYLE_CLASS_STATUS_PREFIX = "storyControlStatus_";
+    public final static double DEFAULT_WIDTH = 200;
+
+    @FXML
+    private VBox MainStoryControl;
 
     @FXML
     private Label StoryTitleLabel;
@@ -126,8 +132,12 @@ public class StoryControlController {
             story.setFileFormat(newValue);
         });
         StoryStatusCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            MainStoryControl.getStyleClass().remove(STYLE_CLASS_STATUS_PREFIX + (story.getStatus().ordinal() + 1));
             story.setStatus(newValue);
+            MainStoryControl.getStyleClass().add(STYLE_CLASS_STATUS_PREFIX + (story.getStatus().ordinal() + 1));
         });
+
+        MainStoryControl.getStyleClass().add(STYLE_CLASS_STATUS_PREFIX + (story.getStatus().ordinal() + 1));
     }
 
     private void updateTitle(){

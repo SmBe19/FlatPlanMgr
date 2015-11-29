@@ -5,24 +5,24 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="storyControl" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
+<VBox fx:id="MainStoryControl" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="storyControl" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label fx:id="StoryTitleLabel" text="Story">
          <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
       </Label>
-      <TextField fx:id="FirstPage" promptText="First Page">
+      <TextField fx:id="FirstPage" prefWidth="200.0" promptText="First Page">
          <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
       </TextField>
-      <TextField fx:id="StoryLength" promptText="Length">
+      <TextField fx:id="StoryLength" prefWidth="200.0" promptText="Length">
          <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
       </TextField>
-      <TextField fx:id="StoryTitle" promptText="Title">
+      <TextField fx:id="StoryTitle" prefWidth="200.0" promptText="Title">
          <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
@@ -37,7 +37,7 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
       </ComboBox>
-      <TextField fx:id="FileFormat" promptText="File format">
+      <TextField fx:id="FileFormat" prefWidth="200.0" promptText="File format">
          <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
@@ -49,17 +49,17 @@
       </ComboBox>
       <HBox prefWidth="200.0">
          <children>
-            <Button fx:id="StoryLeft" mnemonicParsing="false" onAction="#storyLeft" text="&lt;">
+            <Button fx:id="StoryLeft" mnemonicParsing="false" onAction="#storyLeft" prefWidth="50.0" text="&lt;">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </HBox.margin>
             </Button>
-            <Button fx:id="StoryDelete" mnemonicParsing="false" onAction="#deleteStory" text="Delete">
+            <Button fx:id="StoryDelete" mnemonicParsing="false" onAction="#deleteStory" prefWidth="80.0" text="Delete">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </HBox.margin>
             </Button>
-            <Button fx:id="StoryRight" mnemonicParsing="false" onAction="#storyRight" text="&gt;">
+            <Button fx:id="StoryRight" mnemonicParsing="false" onAction="#storyRight" prefWidth="50.0" text="&gt;">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </HBox.margin>

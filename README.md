@@ -14,6 +14,7 @@ Allows to create flat plans for publications. Consists of an offline editor and 
  - Add authors
  - Remove authors
  - Edit authors
+ - Upload / Download to central server
 
 ## Features Online Viewer
 
@@ -23,6 +24,14 @@ Allows to create flat plans for publications. Consists of an offline editor and 
 	- Display the list of authors
 	- Send E-Mail to author(s)
   - Display all available plans
+
+## File format Offline config
+For the Offline Editor you can create a config file containing informations about the server. Place the file called `fpm_config.txt` next to the .jar file. The file should contain the following informations in a `key=value` format:
+
+    base_url=http://localhost/api.php?v=1
+    username=test
+    password=test
+
 
 ## File format FlatPlan
 FPMgr uses csv as it's file format. It contains one table with the following columns, one article per line:

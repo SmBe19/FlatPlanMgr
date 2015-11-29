@@ -3,6 +3,29 @@
     -fx-border-width: 1px;
 }
 
+.storyControlStatus_1{
+    -fx-background-color: #DFA;
+}
+
+.storyControlStatus_1{
+  -fx-background-color: #FCC;
+}
+
+.storyControlStatus_2{
+  -fx-background-color: #FFC;
+}
+.storyControlStatus_3{
+  -fx-background-color: #FFA;
+}
+
+.storyControlStatus_4{
+  -fx-background-color: #CCF;
+}
+
+.storyControlStatus_5{
+  -fx-background-color: #CFC;
+}
+
 .textFieldError{
     -fx-control-inner-background: #F00;
 }
