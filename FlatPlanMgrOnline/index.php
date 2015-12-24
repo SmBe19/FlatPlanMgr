@@ -32,6 +32,18 @@ if(isset($_GET["plan"])){
       $story["status"] = $parts[6];
 
       for($i = $story["first"]; $i < $story["first"] + $story["length"]; $i++){
+        if(isset($plan[$i])){
+          if(isset($_GET["highlight_author"])){
+            if($_GET["highlight_author"] === $plan[$i]["author"]){
+              $story = $plan[$i];
+            }
+          } else {
+            if($plan[$i]["status"] < $story["status"]){
+              $story = $plan[$i];
+            }
+            $story["title"] = $story["title"]." / ".$plan[$i]["title"];
+          }
+        }
         $plan[$i] = $story;
       }
     }
