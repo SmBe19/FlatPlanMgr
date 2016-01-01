@@ -78,7 +78,7 @@ if(isset($_REQUEST["v"]) && $_REQUEST["v"] == 1){
         }
 
         header("Content-Type: text/plain");
-        echo md5($plan_base_file);
+        echo get_hash_from_file_name($plan_base_file);
       } else {
         header("HTTP/1.1 400 Bad Request (missing arguments)");
         echo "400 Bad Request (missing arguments)";

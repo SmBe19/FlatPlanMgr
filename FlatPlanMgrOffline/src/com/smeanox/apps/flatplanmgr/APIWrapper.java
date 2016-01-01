@@ -23,6 +23,7 @@ import java.util.Optional;
 public class APIWrapper {
 
     private String baseUrl;
+    private String hashFileName;
     private String username;
     private String password;
 
@@ -39,8 +40,11 @@ public class APIWrapper {
     private final static String CRLF = "\r\n";
 
     private final static String CONFIG_BASE_URL = "base_url";
+    private final static String CONFIG_HASH_FILE_NAME = "hash_file_name";
     private final static String CONFIG_USERNAME = "username";
     private final static String CONFIG_PASSWORD = "password";
+
+    private final static String HASH_MD5 = "md5";
 
     public APIWrapper() {
         CookieManager.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
@@ -56,9 +60,10 @@ public class APIWrapper {
         this.baseUrl = baseUrl;
     }
 
-    public APIWrapper(String baseUrl, String username, String password) {
+    public APIWrapper(String baseUrl, String hashFileName, String username, String password) {
         this();
         this.baseUrl = baseUrl;
+        this.hashFileName = hashFileName;
         this.username = username;
         this.password = password;
     }
@@ -80,6 +85,8 @@ public class APIWrapper {
                 case CONFIG_BASE_URL:
                     baseUrl = parts[1].trim();
                     break;
+                case CONFIG_HASH_FILE_NAME:
+                    hashFileName = parts[1].trim();
                 case CONFIG_USERNAME:
                     username = parts[1].trim();
                     break;
@@ -101,6 +108,9 @@ public class APIWrapper {
                 throw new IOException("config: missing baseUrl");
             }
             baseUrl = result.get();
+        }
+        if(hashFileName == null){
+            hashFileName = HASH_MD5;
         }
         if(username == null){
             Dialog<Pair<String, String>> dialog = new Dialog<>();
@@ -197,7 +207,13 @@ public class APIWrapper {
     public boolean download(String name, File planFile, File authorsFile){
         if(login()) {
             try {
-                String result = makeRequest(createParamsList("action", ACTION_DOWNLOAD, "plan", md5(name)));
+                String hash;
+                if(HASH_MD5.equals(hashFileName)) {
+                    hash = md5(name);
+                } else {
+                    hash = name;
+                }
+                String result = makeRequest(createParamsList("action", ACTION_DOWNLOAD, "plan", hash));
 
                 String[] parts = result.split("---");
 

@@ -29,6 +29,7 @@ Allows to create flat plans for publications. Consists of an offline editor and 
 For the Offline Editor you can create a config file containing informations about the server. Place the file called `fpm_config.txt` next to the .jar file. The file should contain the following informations in a `key=value` format:
 
     base_url=http://localhost/api.php?v=1
+    hash_file_name=md5
     username=test
     password=test
 

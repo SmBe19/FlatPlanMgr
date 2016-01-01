@@ -32,12 +32,22 @@ function get_file_name_from_hash($hash){
 
   $files = scandir($FPM_SETTINGS["root_dir"]);
   foreach($files as $file){
-    if(md5($file) == $hash && is_file($FPM_SETTINGS["root_dir"]."/".$file)){
+    if(get_hash_from_file_name($file) == $hash && is_file($FPM_SETTINGS["root_dir"]."/".$file)){
       $plan_file = $FPM_SETTINGS["root_dir"]."/".$file;
       return $plan_file;
     }
   }
   return false;
+}
+
+function get_hash_from_file_name($filename){
+  global $FPM_SETTINGS;
+
+  if($FPM_SETTINGS["hash_file_name"] == "md5"){
+    return md5($filename);
+  } else {
+    return $filename;
+  }
 }
 
 function get_authors_file($plan_file, $check_is_file = true){

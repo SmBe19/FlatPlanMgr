@@ -1,5 +1,6 @@
 <?php require("session_start.php"); ?>
 <?php require("settings.php"); ?>
+<?php require("helpers.php"); ?>
 <?php
 if($_SESSION["fpm_logged_in"] === true){
   $files = scandir($FPM_SETTINGS["root_dir"]);
@@ -30,7 +31,7 @@ if($_SESSION["fpm_logged_in"] === true){
           <?php
           foreach($file_list as $file){
             ?>
-            <li class="admin_file_item"><?=$file?>: <a href="index.php?plan=<?=md5($file)?>"><?=md5($file)?></a></li>
+            <li class="admin_file_item"><?=$file?>: <a href="index.php?plan=<?=get_hash_from_file_name($file)?>"><?=get_hash_from_file_name($file)?></a></li>
             <?php
           }
           ?>
