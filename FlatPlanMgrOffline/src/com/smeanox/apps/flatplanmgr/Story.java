@@ -85,4 +85,8 @@ public class Story {
     public void setStatus(StoryStatus status) {
         this.status = status;
     }
+
+    public String getFileName(){
+        return String.format("%02d_%s__%s.%s", start, title.replace(" ", "_"), author.getFullName().replace(" ", "_"), fileFormat);
+    }
 }

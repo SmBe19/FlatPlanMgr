@@ -4,16 +4,13 @@
 }
 
 .storyControlStatus_1{
-    -fx-background-color: #DFA;
-}
-
-.storyControlStatus_1{
   -fx-background-color: #FCC;
 }
 
 .storyControlStatus_2{
   -fx-background-color: #FFC;
 }
+
 .storyControlStatus_3{
   -fx-background-color: #FFA;
 }

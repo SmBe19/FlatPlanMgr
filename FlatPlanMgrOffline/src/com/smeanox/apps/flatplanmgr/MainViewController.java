@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -53,6 +54,12 @@ public class MainViewController {
 
     @FXML
     private Button StoriesSort;
+
+    @FXML
+    private Button StoriesStatus;
+
+    @FXML
+    private Button StoriesMatch;
 
     @FXML
     private ListView<Author> AuthorList;
@@ -195,6 +202,43 @@ public class MainViewController {
     @FXML
     void sortStories(ActionEvent event) {
         mainView.getFlatPlan().getStories().sort((o1, o2) -> o1.getStart() - o2.getStart());
+    }
+
+    @FXML
+    void statusStories(ActionEvent event){
+        if(mainView.getFlatPlan() == null) {
+            return;
+        }
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Update status");
+        if(mainView.getFlatPlan().getFile() != null){
+            dirChooser.setInitialDirectory(mainView.getFlatPlan().getFile().getParentFile());
+        }
+        File dir = dirChooser.showDialog(mainView.getPrimaryStage());
+        if(dir != null){
+            String log = mainView.getFlatPlan().statusWithFolder(dir);
+            initStories();
+            displayInfoAlert("Status update log", log);
+        }
+    }
+
+    @FXML
+    void matchStories(ActionEvent event){
+        if(mainView.getFlatPlan() == null) {
+            return;
+        }
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Match stories");
+        if(mainView.getFlatPlan().getFile() != null){
+            dirChooser.setInitialDirectory(mainView.getFlatPlan().getFile().getParentFile());
+        }
+        File dir = dirChooser.showDialog(mainView.getPrimaryStage());
+        if(dir != null){
+            String log = mainView.getFlatPlan().matchWithFolder(dir,
+                    (story, files) -> displayChoiceDialog("Choose match", story.getFileName(), files, files.get(0)));
+            initStories();
+            displayInfoAlert("Status update log", log);
+        }
     }
 
     @FXML
@@ -497,6 +541,23 @@ public class MainViewController {
         }
     }
 
+    private <T> T displayChoiceDialog(String header, String text, List<T> choices, T defaultValue){
+        ChoiceDialog<T> choiceDialog = new ChoiceDialog<>(defaultValue, choices);
+        choiceDialog.setTitle("CHOOSE");
+        choiceDialog.setHeaderText(header);
+        choiceDialog.setContentText(text);
+        Optional<T> result = choiceDialog.showAndWait();
+        return result.orElse(null);
+    }
+
+    private void displayInfoAlert(String header, String text){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setResizable(true);
+        alert.setTitle("INFO");
+        alert.setHeaderText(header);
+        alert.setContentText(text);
+        alert.show();
+    }
 
     private void displayExceptionAlert(Exception e){
         if(e != null) {

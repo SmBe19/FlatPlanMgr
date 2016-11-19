@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.*;
 
 /**
  * A flat plan
@@ -179,5 +180,124 @@ public class FlatPlan {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+	/**
+	 * GO through the given folder and mark all found files
+     * @param folder the folder to check
+     * @return log of the status update
+     */
+    public String statusWithFolder(File folder){
+        if(!folder.isDirectory()) {
+            return "Directory " + folder + " not found";
+        }
+        StringBuilder log = new StringBuilder();
+        for(Story story : stories){
+            File file = new File(folder, story.getFileName());
+            if(file.exists()){
+                if(story.getStatus() == StoryStatus.Missing){
+                    story.setStatus(StoryStatus.Received);
+                    log.append(file);
+                    log.append(" found\n");
+                }
+            } else {
+                if(story.getStatus() != StoryStatus.Missing){
+                    story.setStatus(StoryStatus.Missing);
+                    log.append(file).append(" not found\n");
+                }
+            }
+        }
+        return log.toString();
+    }
+
+	/**
+     * Go through the given folder try to match the stories with files
+     * @param folder the folder to check
+     */
+    public String matchWithFolder(File folder, matchResponder responder){
+        if(!folder.isDirectory()){
+            return "Directory " + folder + " not found";
+        }
+        StringBuilder log = new StringBuilder();
+        List<File> files = Arrays.asList(folder.listFiles());
+        for(Story story : stories){
+            File file = new File(folder, story.getFileName());
+            Map<File, Integer> levenshteinCache = new HashMap<>();
+            for(File afile : files){
+                levenshteinCache.put(afile, levenshtein(splitFilename(file.getName())[0], splitFilename(afile.getName())[0]));
+            }
+            if(!file.exists()){
+                File finalFile = file;
+                files.sort((o1, o2) -> {
+                    int diff = levenshteinCache.get(o1) - levenshteinCache.get(o2);
+                    if (diff == 0){
+                        return levenshtein(finalFile.getName(), o1.getName()) - levenshtein(finalFile.getName(), o2.getName());
+                    }
+                    return diff;
+                });
+                File choice = responder.match(story, files);
+                if(choice == null){
+                    log.append("No match for file ").append(file);
+                } else {
+                    String[] filesplit = splitFilename(file.getName());
+                    String[] choicesplit = splitFilename(choice.getName());
+                    story.setFileFormat(choicesplit[1]);
+                    file = new File(file.getParentFile(), filesplit[0] + "." + choicesplit[1]);
+                    boolean success = choice.renameTo(file);
+                    log.append("Match file ").append(choice).append(" to " ).append(file);
+                    if(!success){
+                        log.append("could not rename file");
+                    }
+                }
+                log.append("\n");
+            }
+        }
+        return log.toString();
+    }
+
+    private String[] splitFilename(String filename){
+        int lastPoint = filename.lastIndexOf('.');
+        if(lastPoint < 0){
+            return new String[]{filename, ""};
+        }
+        return new String[]{filename.substring(0, lastPoint), filename.substring(lastPoint + 1)};
+    }
+
+	/**
+     * Calculate Levenshtein distance between two strings
+     * @param a first string
+     * @param b second string
+     * @return distance
+     */
+    private int levenshtein(String a, String b){
+        if(a.length() == 0){
+            return b.length();
+        }
+        if(b.length() == 0){
+            return a.length();
+        }
+
+        int m[][] = new int[a.length()+1][b.length()+1];
+        for (int i = 0; i <= a.length(); i++) {
+            m[i][0] = i;
+        }
+        for (int i = 0; i <= b.length(); i++) {
+            m[0][i] = i;
+        }
+        for (int i = 1; i <= a.length(); i++) {
+            for (int j = 1; j <= b.length(); j++) {
+                m[i][j] = a.charAt(i-1) == b.charAt(j-1)
+                        ? m[i-1][j-1]
+                        : Math.min(m[i-1][j-1] + 1, Math.min(m[i][j-1] + 1, m[i-1][j] + 1));
+            }
+        }
+        return m[a.length()][b.length()];
+    }
+
+	/**
+	 * Choose the best fitting file from a list sorted by relevance
+     */
+    public interface matchResponder{
+        File match(Story story, List<File> files);
     }
 }
